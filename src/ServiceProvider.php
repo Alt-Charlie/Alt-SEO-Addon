@@ -97,6 +97,9 @@ class ServiceProvider extends AddonServiceProvider
         $this->addToNav();
         $this->registerPermissions();
         $this->registerEvents();
+
+        // Statamic V6 - unbind the settings blueprint to remove the default settings page and permissions
+        app()->offsetUnset("statamic.addons.alt-seo.settings_blueprint");
     }
 }
 
