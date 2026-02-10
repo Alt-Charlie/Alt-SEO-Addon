@@ -2,14 +2,16 @@
 
 namespace AltDesign\AltSeo;
 
-use AltDesign\AltSeo\Events\Seo;
+use Illuminate\Support\Str;
 
 // Facades
-use Illuminate\Support\Facades\Event;
 use Statamic\Facades\CP\Nav;
+use AltDesign\AltSeo\Events\Seo;
 use Statamic\Facades\Permission;
+use Facades\Statamic\Version;
 
 // Providers
+use Illuminate\Support\Facades\Event;
 use Statamic\Providers\AddonServiceProvider;
 
 /**
@@ -100,7 +102,10 @@ class ServiceProvider extends AddonServiceProvider
 
         // Statamic V6 - unbind the settings blueprint to remove the default settings page and permissions 
         // as we are handling this manually instead
-        app()->offsetUnset("statamic.addons.alt-seo.settings_blueprint");
+        // Statamic >= V6
+        if(intval(Str::before(Version::get(), '.')) >= 6) {
+            app()->offsetUnset("statamic.addons.alt-seo.settings_blueprint");
+        }
     }
 }
 
