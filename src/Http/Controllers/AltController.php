@@ -23,6 +23,7 @@ class AltController {
         $data = new Data('settings');
 
         $blueprint = $data->getBlueprint(true);
+        $blueprint->setNamespace('alt-seo');
         $fields = $blueprint->fields()->addValues($data->all())->preProcess();
 
         // Check if the asset container exists
@@ -45,8 +46,6 @@ class AltController {
             );
             $fields->setFields(collect($newFields));
         }
-
-        $blueprint->setContents($contents);
 
         return PublishForm::make($blueprint)
             ->title('Alt SEO')
