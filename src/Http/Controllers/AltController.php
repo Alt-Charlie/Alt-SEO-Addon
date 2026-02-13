@@ -48,6 +48,8 @@ class AltController {
             $fields->setFields(collect($newFields));
         }
 
+        $blueprint->setContents($contents);
+
         // Statamic >= V6
         if(intval(Str::before(Version::get(), '.')) >= 6) {
             $blueprint->setNamespace('alt-seo');
@@ -59,8 +61,6 @@ class AltController {
                 ->submittingTo(cp_route('alt-seo.update'), 'POST');
         // Statamic < V6
         } else {
-            $blueprint->setContents($contents);
-
             return view('alt-seo::index', [
                 'blueprint' => $blueprint->toPublishArray(),
                 'values'    => $fields->values(),
