@@ -78,7 +78,10 @@ class Seo
 
             foreach ($containerSettings as $setting) {
                 if ($setting['collection'] === $thisEntryHandle) {
-                    $contents['tabs']['alt_seo']['sections'][0]['fields'][6]['field']['container'] = $setting['asset_handle'] ?? 'assets';
+                    // Set any asset fields to use the asset handle specified
+                    collect($contents['tabs']['alt_seo']['sections'][0]['fields'])->where('field.type', 'assets')->keys()->each(function($i) use (&$contents, $setting) {
+                        $contents['tabs']['alt_seo']['sections'][0]['fields'][$i]['field']['container'] = $setting['asset_handle'] ?? 'assets';
+                    });
                 }
             }
             $blueprint->setContents($contents);

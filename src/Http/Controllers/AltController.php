@@ -1,8 +1,11 @@
 <?php namespace AltDesign\AltSeo\Http\Controllers;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Statamic\CP\PublishForm;
 use AltDesign\AltSeo\Helpers\Data;
 use Statamic\Facades\AssetContainer;
+use Facades\Statamic\Version;
 
 /**
  * Class AltController
@@ -47,6 +50,18 @@ class AltController {
 
         $blueprint->setContents($contents);
 
+        // Statamic >= V6
+        if(intval(Str::before(Version::get(), '.')) >= 6) {
+            $blueprint->setNamespace('alt-seo');
+
+            return PublishForm::make($blueprint)
+                ->title('Alt SEO')
+                ->icon(config('alt-seo.alt_seo_icon'))
+                ->values($fields->values()->toArray())
+                ->submittingTo(cp_route('alt-seo.update'), 'POST');
+        }
+
+        // Statamic < V6
         return view('alt-seo::index', [
             'blueprint' => $blueprint->toPublishArray(),
             'values'    => $fields->values(),
