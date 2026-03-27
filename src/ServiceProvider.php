@@ -85,7 +85,26 @@ class ServiceProvider extends AddonServiceProvider
      */
     protected function loadViews()
     {
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'alt-seo');
+        $path = __DIR__.'/resources/views';
+        $published = resource_path('views/vendor/alt-seo');
+
+        if (file_exists($published)) {
+            $path = $published;
+        }
+
+        $this->loadViewsFrom($path, 'alt-seo');
+    }
+
+    /**
+     * Allow views to be published.
+     *
+     * @return void
+     */
+    protected function publishViews(): void
+    {
+        $this->publishes([
+            __DIR__.'/resources/views' => resource_path('views/vendor/alt-seo'),
+        ], 'alt-seo');
     }
 
     /**
@@ -95,6 +114,7 @@ class ServiceProvider extends AddonServiceProvider
      */
     public function bootAddon()
     {
+        $this->publishViews();
         $this->loadViews();
         $this->addToNav();
         $this->registerPermissions();
