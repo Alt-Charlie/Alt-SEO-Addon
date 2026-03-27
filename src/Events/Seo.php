@@ -46,6 +46,11 @@ class Seo
      */
     public function addSeoData($event)
     {
+        // Bail if the blueprint has already been augmented with the alt_seo tab
+        if (array_key_exists('alt_seo', $event->blueprint->contents()['tabs'] ?? [])) {
+            return;
+        }
+
         $data = new Data('settings');
         //check explicit include and do nothing if not included
         $seoInclude = $data->get('alt_seo_asset_container_include');
