@@ -77,7 +77,7 @@ class AltSeo extends Tags
             'og_image' => $this->getSocialImage(),
 
             'twitter_card' => 'summary_large_image',
-            'twitter_domain' => config('app.url'),
+            'twitter_domain' => $this->context->value('site')->url,
             'twitter_url' => $this->getCanonical(),
             'twitter_title' => $this->getSocialTitle(),
             'twitter_description' => strip_tags($this->getSocialDescription()),
@@ -93,7 +93,7 @@ class AltSeo extends Tags
      */
     public function replaceVars($string){
         $blueprintPageTitle = $this->context->value('title'); // Page Title
-        $appName = $this->context->value('config.app.name'); // App Name
+        $appName = $this->context->value('site')->name; // App Name
         $string = str_replace('{title}', $blueprintPageTitle, $string);
         $string = str_replace('{site_name}', $appName, $string);
         return $string;
@@ -116,7 +116,7 @@ class AltSeo extends Tags
             return $this->replaceVars($title);
         }
 
-        return $this->context->value('title') . ' | ' . $this->context->value('config.app.name');
+        return $this->context->value('title') . ' | ' . $this->context->value('site')->name;
     }
 
     /**
@@ -172,7 +172,7 @@ class AltSeo extends Tags
             return $this->replaceVars($title);
         }
 
-        return $this->context->value('title') . ' | ' . $this->context->value('config.app.name');
+        return $this->context->value('title') . ' | ' . $this->context->value('site')->name;
     }
 
     /**
@@ -215,18 +215,33 @@ class AltSeo extends Tags
     {
         $imageURL = '';
         if(!empty($this->context->value('alt_seo_social_image'))) {
-            $imageURL =  str_replace('/assets/', '', Antlers::parse($this->context->value('alt_seo_social_image')));
+            $imageURL =  Antlers::parse($this->context->value('alt_seo_social_image'));
         } else {
             $data = new Data('settings');
             if($data->get('alt_seo_social_image_default')) {
                 $image = $data->get('alt_seo_social_image_default');
-                $imageURL = str_replace('/assets/', '', $image);
+                $imageURL = $image;
             }
         }
-        $appUrl = config('app.url');
-        if(!empty($imageURL) && !str_contains($imageURL, $appUrl)) {
-            $imageURL = $appUrl . '/assets/' . $imageURL;
+
+        // If the image is an absolute URL (e.g., S3), use it as is
+        if (preg_match('/^https?:\/\//', $imageURL)) {
+            return $imageURL;
+        } else {
+            // Check if Statamic is configured to use S3 or local assets
+            $assetContainer = \Statamic\Facades\AssetContainer::findByHandle('assets');
+            $disk = $assetContainer ? $assetContainer->disk() : null;
+            $assetBaseUrl = $assetContainer ? $assetContainer->url() : null;
+
+            if ($disk && $assetBaseUrl && !empty($imageURL)) {
+                // Remove leading slash if present
+                $imageURL = ltrim($imageURL, '/');
+                $imageURL = rtrim($assetBaseUrl, '/') . '/' . $imageURL;
+            } else {
+                $imageURL = str_replace('/assets/', '', $imageURL);
+            }
         }
+        
         return $imageURL;
     }
 
