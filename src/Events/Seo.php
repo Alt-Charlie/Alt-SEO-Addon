@@ -46,11 +46,6 @@ class Seo
      */
     public function addSeoData($event)
     {
-        // Bail if the blueprint has already been augmented with the alt_seo tab
-        if (array_key_exists('alt_seo', $event->blueprint->contents()['tabs'] ?? [])) {
-            return;
-        }
-
         $data = new Data('settings');
         //check explicit include and do nothing if not included
         $seoInclude = $data->get('alt_seo_asset_container_include');
@@ -63,8 +58,13 @@ class Seo
             $oldDirectory = with(new BlueprintRepository)->directory();
         }
 
-        // Grab the tabs - there may be a better way of doing this?
-        $blueprint = with(new BlueprintRepository)->setDirectory(__DIR__ . '/../../resources/blueprints')->find(config('alt-seo.alt_seo_enable_schema') ? 'seo-with-schema' : 'seo');
+        // Grab the tabs - prefer a published blueprint in the app's resources directory, fall back to addon default
+        $blueprintHandle = config('alt-seo.alt_seo_enable_schema') ? 'seo-with-schema' : 'seo';
+        $publishedDir = resource_path('blueprints/vendor/alt-seo');
+        $blueprintDir = file_exists("{$publishedDir}/{$blueprintHandle}.yaml")
+            ? $publishedDir
+            : __DIR__ . '/../../resources/blueprints';
+        $blueprint = with(new BlueprintRepository)->setDirectory($blueprintDir)->find($blueprintHandle);
         $blueprintReady = $event->blueprint->contents();
 
         //Global override

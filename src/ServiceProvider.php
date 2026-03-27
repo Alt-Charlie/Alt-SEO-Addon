@@ -108,6 +108,18 @@ class ServiceProvider extends AddonServiceProvider
     }
 
     /**
+     * Allow blueprints to be published.
+     *
+     * @return void
+     */
+    protected function publishBlueprints(): void
+    {
+        $this->publishes([
+            __DIR__.'/../resources/blueprints' => resource_path('blueprints/vendor/alt-seo'),
+        ], 'alt-seo');
+    }
+
+    /**
      * Statamic boot method.
      *
      * @return void
@@ -115,12 +127,13 @@ class ServiceProvider extends AddonServiceProvider
     public function bootAddon()
     {
         $this->publishViews();
+        $this->publishBlueprints();
         $this->loadViews();
         $this->addToNav();
         $this->registerPermissions();
         $this->registerEvents();
 
-        // Statamic V6 - unbind the settings blueprint to remove the default settings page and permissions 
+        // Statamic V6 - unbind the settings blueprint to remove the default settings page and permissions
         // as we are handling this manually instead
         // Statamic >= V6
         if(intval(Str::before(Version::get(), '.')) >= 6) {
