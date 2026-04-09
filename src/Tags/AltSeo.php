@@ -253,7 +253,7 @@ class AltSeo extends Tags
 
         $raw = $this->context->get('alt_seo_schema');
 
-        $decoded = json_decode($this->replaceVars($raw), true);
+        $decoded = json_decode(Antlers::parse($this->replaceVars($raw)), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             return '<script>console.error("Invalid schema JSON.")</script>';
         }
