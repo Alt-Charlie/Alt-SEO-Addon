@@ -260,6 +260,8 @@ class AltSeo extends Tags
 
         $sanitisedSchema = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
+        $sanitisedSchema = $this->replaceVars($sanitisedSchema);
+        
         return "<script type=\"application/ld+json\">$sanitisedSchema</script>";
     }
 }
